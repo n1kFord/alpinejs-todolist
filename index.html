@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Todo-List using Alpine.js</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+            rel="stylesheet"
+        />
+
+        <link href="./output.css" rel="stylesheet" />
+
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
+    </head>
+    <body
+        class="pb-[200px]"
+        x-data="{
+            todos: [],
+            userText: '',
+            rippleActive: false,
+
+            addTodo() {
+                if(this.userText.trim() !== '') {
+                    this.todos.push()
+                    this.todos.unshift(this.generateTodo(this.userText))
+                    this.userText = '';
+                }
+            },
+
+            deleteTodo(id) {
+                const newTodos = this.todos.filter((todo) => todo.id !== id);
+                this.todos = newTodos;
+
+                this.setFocus()
+            },
+
+            clearTodoList() {
+                this.todos = [];
+            },
+
+            reverseTodoList() {
+                const tempList = this.todos.slice(0);
+                this.clearTodoList()
+                const tempListReversed = tempList.reverse();
+                setTimeout(() => {
+                    this.todos = tempListReversed;
+                }, 50);
+            },
+
+            generateTodo(text) {
+                return {name: text, completed: false, id: this.generateUniqueId(), isEdit: false, editText: '', isDelete: false}
+            },
+
+            generateUniqueId() {
+                const timestamp = new Date().getTime();
+                const random = Math.random().toString(36).substring(2, 8);
+
+                return `${timestamp}-${random}`;
+            },
+
+            updateTodo(todo) {
+                if(todo.editText.trim() !== '' && todo.editText.trim() !== todo.name.trim()) {
+                    todo.name = todo.editText;
+                    this.cancelEdit(todo);
+                } else {
+                    this.cancelEdit(todo);
+                }
+            },
+
+            cancelEdit(todo) {
+                todo.editText = todo.name;
+                todo.isEdit = false;
+            },
+
+            setFocus() {
+                this.$refs.userInput.focus();
+            },
+
+            resetTodoEvents(todo) {
+                todo.isDelete = false;
+                this.cancelEdit(todo);
+            },
+
+            resetEvents() {
+                this.todos.forEach((item) => {
+                    this.resetTodoEvents(item);
+                })
+                this.setFocus();
+            },
+
+            moveUp(index) {
+                const temp = this.todos[index];
+                this.todos[index] = this.todos[index - 1];
+                this.todos[index - 1] = temp;
+            },
+
+            moveDown(index) {
+                const temp = this.todos[index];
+                this.todos[index] = this.todos[index + 1];
+                this.todos[index + 1] = temp;
+            },
+
+            animateTitle(ms = 1000) {
+                this.rippleActive = true; setTimeout(() => { this.rippleActive = false; }, ms)
+            },
+
+            init() {
+                this.$watch('todos', (list) => {
+                    const savedList = JSON.stringify(list);
+                    if(savedList) {
+                        localStorage.setItem('alpinejstodolist', savedList);
+                    }
+                });
+                this.setFocus();
+                const lastTodos = localStorage.getItem('alpinejstodolist');
+                if(lastTodos) {
+                    this.todos = JSON.parse(lastTodos);
+                }
+            }
+        }"
+        x-on:keyup.escape.window="resetEvents"
+    >
+        <div class="fixed inset-0 bg-main bg-cover bg-no-repeat z-[-1]"></div>
+        <div class="bg-dark-overlay"></div>
+        <div class="light-1"></div>
+        <header
+            class="w-full mt-[144px] flex flex-col justify-center items-center animate_show"
+        >
+            <h1
+                class="text-white font-Montserrat text-[45px] text-center leading-[55px] max-md:text-[32px] max-md:leading-[36px]"
+                x-bind:class="{ 'animate_ripple': rippleActive }"
+            >
+                Alpine<span class="text-[#7a7a7a]">.js</span>
+            </h1>
+            <div
+                class="mt-[16px] py-[2px] px-[10px] bg-[#F8F8F81F] flex items-center justify-center"
+            >
+                <p
+                    class="text-[#acacac] text-lg font-Montserrat max-md:text-[16px]"
+                >
+                    a simple todo-list by <b class="font-medium">n1kford</b>
+                </p>
+            </div>
+        </header>
+        <form
+            class="w-full max-w-[340px] max-sm:w-[80%] mx-auto mt-[58px] flex flex-col items-center font-Roboto animate_slide-in"
+            x-on:submit.prevent="addTodo(); animateTitle(1000)"
+        >
+            <input
+                type="text"
+                class="user-input"
+                placeholder="Enter a new todo..."
+                required
+                x-model="userText"
+                x-ref="userInput"
+            />
+            <button type="submit" class="submit-btn">Add to list</button>
+        </form>
+        <div
+            class="mt-[112px] max-sm:mt-[75px] w-full flex flex-col items-center gap-5 relative"
+        >
+            <div
+                class="flex items-center gap-3 absolute top-[-55px]"
+                x-cloak
+                x-show="todos.length > 2"
+            >
+                <button
+                    type="button"
+                    class="py-2 px-4 bg-slate-50/10 text-blue-200 font-Montserrat text-sm animate_slide-in transition-all hover:opacity-85"
+                    x-on:click="clearTodoList; window.scrollTo(0, 0);"
+                >
+                    Clear all
+                </button>
+                <button
+                    type="button"
+                    class="py-2 px-4 bg-slate-50/20 text-blue-200 font-Montserrat text-sm animate_slide-in transition-all hover:opacity-85"
+                    x-on:click="reverseTodoList"
+                >
+                    Reverse
+                </button>
+            </div>
+            <template x-for="(todo, index) in todos" x-cloak :key="todo.id">
+                <div
+                    class="todo"
+                    x-bind:class="{'is-editing': todo.isEdit, 'is-deleting': todo.isDelete, 'is-completed': todo.completed}"
+                    x-on:click.outside="resetTodoEvents(todo);"
+                >
+                    <button
+                        type="button"
+                        x-on:click="moveDown(index)"
+                        x-cloak
+                        x-show="todos.length > 1"
+                        class="todo__sort-btn left-[-60px] max-md:left-[-20px] rotate-180"
+                        x-bind:key="todo.id"
+                        x-bind:disabled="index === todos.length - 1"
+                    >
+                        <img src="./src/assets/arrow.svg" alt="move down" />
+                    </button>
+                    <div class="todo__block left-[-30px]"></div>
+                    <label
+                        class="relative flex items-center p-2 max-sm:p-0 rounded-full cursor-pointer"
+                        htmlFor="checkbox"
+                        x-bind:class="{'pointer-events-none cursor-default': todo.isEdit || todo.isDelete}"
+                    >
+                        <input
+                            type="checkbox"
+                            class="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-[#575757] transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity checked:border-gray-900 checked:bg-gray-900 checked:before:bg-gray-900 hover:before:opacity-10"
+                            id="checkbox"
+                            x-model="todo.completed"
+                            x-bind:disabled="todo.isEdit || todo.isDelete"
+                        />
+                        <span
+                            class="absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-3.5 w-3.5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                stroke="currentColor"
+                                stroke-width="1"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"
+                                ></path>
+                            </svg>
+                        </span>
+                    </label>
+                    <p class="todo__name" x-text="todo.name"></p>
+                    <input
+                        type="text"
+                        class="todo__change-input"
+                        x-data="{
+                            init() {
+                                todo.editText = todo.name
+                            }
+                        }"
+                        x-bind:value="todo.editText"
+                        x-on:input="
+                            todo.editText = $event.target.value;
+                        "
+                        x-on:keyup.enter="updateTodo(todo)"
+                        x-on:keyup.escape="cancelEdit(todo)"
+                    />
+                    <div class="ml-auto flex items-center gap-[22px]">
+                        <button
+                            type="button"
+                            x-on:click="todo.isEdit = !todo.isEdit"
+                            x-bind:disabled="todo.completed"
+                        >
+                            <img
+                                src="./src/assets/edit.png"
+                                alt="edit"
+                                class="todo__button edit"
+                            />
+                        </button>
+
+                        <button
+                            x-on:click="todo.isDelete = true"
+                            x-bind:disabled="todo.completed"
+                        >
+                            <img
+                                src="./src/assets/delete.png"
+                                alt="delete"
+                                class="todo__button delete"
+                            />
+                        </button>
+                    </div>
+                    <div class="todo__block right-[-30px]"></div>
+                    <div class="todo__delete-overlay">
+                        <button
+                            type="button"
+                            class="todo__delete-overlay__btn"
+                            x-on:click="deleteTodo(todo.id);"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                    <button
+                        type="button"
+                        x-on:click="moveUp(index)"
+                        x-cloak
+                        x-show="todos.length > 1"
+                        x-bind:key="todo.id"
+                        class="todo__sort-btn right-[-60px] max-md:right-[-20px]"
+                        x-bind:disabled="index === 0"
+                    >
+                        <img src="./src/assets/arrow.svg" alt="move up" />
+                    </button>
+                </div>
+            </template>
+        </div>
+    </body>
+</html>

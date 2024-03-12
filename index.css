@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body,
+html {
+    width: 100%;
+    min-height: 100vh;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes showIn {
+    from {
+        scale: 0.95;
+        opacity: 0;
+    }
+    to {
+        scale: 1;
+        opacity: 1;
+    }
+}
+
+@keyframes ripple {
+    0% {
+        opacity: 1;
+        scale: 1;
+    }
+    50% {
+        opacity: 0.7;
+        scale: 0.98;
+    }
+    100% {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+@layer components {
+    .animate_show {
+        animation: showIn 1.3s ease;
+    }
+
+    .animate_slide-in {
+        animation: slideIn 1.5s ease;
+    }
+
+    .animate_ripple {
+        animation: ripple 1s ease;
+    }
+
+    .bg-dark-overlay {
+        @apply block fixed inset-0 z-[-1];
+        background-color: rgba(0, 0, 0, 0.56);
+    }
+
+    .user-input {
+        @apply w-full pb-[6px] pl-[10px] text-[#ACACAC] text-lg max-sm:text-base font-normal
+        bg-transparent outline-none border-b border-[#6C6C6C] placeholder-[#acacacbf] 
+        transition-all duration-300 opacity-85 focus:opacity-100;
+    }
+
+    .submit-btn {
+        @apply w-fit mt-[22px] py-[13px] px-[63px] max-sm:px-[42px] max-sm:py-[10px] bg-[#3030306F] text-[#DBDADA] font-normal 
+        transition-all duration-200 hover:bg-[#30303089] active:scale-[0.98];
+        box-shadow: 0px 0px 29px 0px rgba(0, 0, 0, 0.28);
+    }
+
+    .todo {
+        @apply relative w-full max-w-[552px] h-[47px] px-[34px] max-sm:px-[15px] max-md:max-w-[80%] flex items-center bg-[#5A5A5A3E] rounded-[29px];
+        animation: slideIn 0.5s ease;
+    }
+
+    .todo__name,
+    .todo__change-input {
+        @apply block w-full max-w-[65%] max-sm:max-w-[55%] md:max-w-[70%] ml-3 max-sm:ml-2 overflow-hidden text-ellipsis font-Montserrat font-normal text-base max-sm:text-sm text-[#acacac];
+    }
+
+    .todo__change-input {
+        @apply hidden text-[#8B8B8B] bg-transparent outline-none border-b border-[#6C6C6C];
+    }
+
+    .todo__sort-btn {
+        @apply w-3 h-3 absolute opacity-60 disabled:opacity-30;
+    }
+
+    .todo.is-editing {
+        @apply bg-[#8282823e];
+    }
+
+    .todo.is-editing .todo__change-input {
+        @apply block;
+    }
+
+    .todo.is-editing .todo__name {
+        @apply hidden;
+    }
+
+    .todo.is-editing .todo__button.edit {
+        @apply opacity-75;
+    }
+
+    .todo.is-editing .todo__block {
+        @apply bg-[#f7f7f743];
+    }
+
+    .todo__button {
+        @apply w-[17px] h-[17px] object-cover opacity-50
+        transition-all duration-200 hover:opacity-75;
+    }
+
+    .todo__block {
+        @apply block max-md:hidden w-[13px] h-[13px] bg-[#C4C4C41A] absolute transition-all duration-200;
+    }
+
+    .todo__delete-overlay {
+        @apply z-[-1] opacity-0 absolute inset-0 w-full h-[47px]
+        flex items-center justify-center bg-[#140101E2] rounded-[29px]
+        transition-all duration-200;
+    }
+
+    .todo.is-deleting .todo__delete-overlay {
+        @apply z-30 opacity-100;
+    }
+
+    .todo__delete-overlay__btn {
+        @apply w-fit py-[6px] px-[55px] max-sm:px-[32px] bg-[#51050572] font-Montserrat text-[#afafaf] font-medium max-sm:text-sm
+        transition-all duration-200 hover:opacity-80;
+    }
+
+    .todo.is-deleting .todo__block {
+        @apply bg-[#6d070754] rotate-45;
+    }
+
+    .todo.is-completed {
+        @apply bg-[#5a5a5a24] rounded-[20px];
+    }
+
+    .todo.is-completed .todo__name {
+        @apply line-through opacity-80;
+    }
+
+    .todo.is-completed .todo__block {
+        @apply opacity-0;
+    }
+
+    .todo.is-completed .todo__button {
+        @apply opacity-30 pointer-events-none;
+    }
+}
