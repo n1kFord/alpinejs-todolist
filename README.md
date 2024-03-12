@@ -4,6 +4,12 @@
 
 This is my personal project, a classic todo list, featuring a visually appealing design crafted with TailwindCSS and smoothly animated interactions implemented using native CSS. The project is fully responsive, ensuring a seamless experience across various devices.
 
+## Visit the App
+
+[![Visit the app](https://img.shields.io/badge/Visit%20the%20app-blue?style=flat-square&logo=appveyor&logoColor=white)](https://alpinejs-todolist.vercel.app/)
+
+
+
 ## Features:
 
 - **Add, Edit, Delete Todos:** Easily manage your tasks by adding new todos, editing existing ones, and deleting unwanted tasks.
